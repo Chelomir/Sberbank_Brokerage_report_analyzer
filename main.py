@@ -6,11 +6,23 @@ import re
 REPORT_PATH = r"C:\Users\User\Desktop\brokercode_030719_030719_D.html"
 file = open(REPORT_PATH,'r',encoding="utf-8")
 
+BONDS = 'ОБЛИГАЦИИ'
+SHARES = 'АКЦИИ'
+GOLD = 'ЗОЛОТО'
+
+# Целевые параметры портфеля
+ideal_portfel = {
+    BONDS: 40,
+    GOLD: 10,
+    SHARES: 50
+}
+
 # Оценка активов
-my_portfel = {}
-my_portfel['ОБЛИГАЦИИ'] = 0
-my_portfel['ЗОЛОТО'] = 0
-my_portfel['АКЦИИ'] = 0
+my_portfel = {
+    BONDS: 0,
+    GOLD: 0,
+    SHARES: 0
+}
 reading_a = False
 # Портфель Ценных Бумаг
 pcb = []
@@ -20,14 +32,15 @@ scb = []
 reading_scb = False
 
 # структура соответствия кодов типов активов
-ACTIVE_TYPES = {}
-ACTIVE_TYPES['Облигация федерального займа'] = 'ОБЛИГАЦИИ'
-ACTIVE_TYPES['Инвестиционный пай иностранного эмитента'] = 'ЗОЛОТО' # ETF у меня только на золото)
-ACTIVE_TYPES['Акция обыкновенная'] = 'АКЦИИ'
-ACTIVE_TYPES['Акция иностранного эмитента'] = 'АКЦИИ'
-ACTIVE_TYPES['Облигация'] = 'ОБЛИГАЦИИ'
-ACTIVE_TYPES['ГДР'] = 'АКЦИИ'
-ACTIVE_TYPES['Акция привилегированная'] = 'АКЦИИ'
+ACTIVE_TYPES = {
+    'Облигация федерального займа': BONDS,
+    'Инвестиционный пай иностранного эмитента': GOLD, # ETF у меня только на золото)
+    'Акция обыкновенная': SHARES,
+    'Акция иностранного эмитента': SHARES,
+    'Облигация': BONDS,
+    'ГДР': SHARES,
+    'Акция привилегированная': SHARES
+}
 
 try:
     for line in file:
@@ -123,11 +136,42 @@ additional_money = float(input("Введите сумму, которую соб
 my_portfel['Денежные средства, руб.'] = my_portfel['Денежные средства, руб.'] + additional_money
 my_portfel['Оценка, руб'] = my_portfel['Оценка, руб'] + additional_money
 
-print("Стоимость ценных бумаг: "+ str(my_portfel['Оценка портфеля ЦБ, руб']) + " рублей")
-print("Денежные средства: "+ str(my_portfel['Денежные средства, руб.']) + " рублей")
-print("Полная стоимость портфеля: "+ str(my_portfel['Оценка, руб']) + " рублей")
-print("------------------------------")
-print("Облигации, %: " + str(round(my_portfel['ОБЛИГАЦИИ']*100/my_portfel['Оценка, руб'],2)))
-print("Акции, %: " + str(round(my_portfel['АКЦИИ']*100/my_portfel['Оценка, руб'],2)))
-print("Золото, %: " + str(round(my_portfel['ЗОЛОТО']*100/my_portfel['Оценка, руб'],2)))
-print("Денежные средства, %: " + str(round(my_portfel['Денежные средства, руб.']*100/my_portfel['Оценка, руб'],2)))
+# Доли активов в настоящее время (с учётом докладываемой суммы)
+current_portions = {
+    BONDS: round(my_portfel[BONDS]*100/my_portfel['Оценка, руб'],2),
+    SHARES: round(my_portfel[SHARES]*100/my_portfel['Оценка, руб'],2),
+    GOLD: round(my_portfel[GOLD]*100/my_portfel['Оценка, руб'],2)
+}
+
+# Необходимые изменения в рублях для достижения идеальных пропорций
+diff_portions = {
+    BONDS: round((ideal_portfel[BONDS] - current_portions[BONDS])*my_portfel['Оценка, руб']/100,2),
+    SHARES: round((ideal_portfel[SHARES] - current_portions[SHARES])*my_portfel['Оценка, руб']/100,2),
+    GOLD: round((ideal_portfel[GOLD] - current_portions[GOLD])*my_portfel['Оценка, руб']/100,2)
+}
+
+print("-------------------------------------------------")
+print("** Параметры портфеля в настоящее время (с учётом докладываемой суммы) **")
+print("- Стоимость ценных бумаг: "+ str(my_portfel['Оценка портфеля ЦБ, руб']) + " рублей")
+print("- Денежные средства: "+ str(my_portfel['Денежные средства, руб.']) + " рублей")
+print("- Полная стоимость портфеля: "+ str(my_portfel['Оценка, руб']) + " рублей")
+print("-------------------------------------------------")
+print("** Доли активов в настоящее время (с учётом докладываемой суммы) **")
+print("- Облигации, %: " + str(current_portions[BONDS]))
+print("- Акции, %: " + str(current_portions[SHARES]))
+print("- Золото, %: " + str(current_portions[GOLD]))
+print("- Денежные средства, %: " + str(round(my_portfel['Денежные средства, руб.']*100/my_portfel['Оценка, руб'],2)))
+print("-------------------------------------------------")
+print("** Необходимые изменения для достижения идеальных пропорций **")
+if diff_portions[BONDS]>0:
+    print("- Облигации: купить на " + str(diff_portions[BONDS]) + " рублей")
+else:
+    print("- Облигации: продать на " + str(abs(diff_portions[BONDS])) + " рублей")
+if diff_portions[SHARES]>0:
+    print("- Акции: купить на " + str(diff_portions[SHARES]) + " рублей")
+else:
+    print("- Акции: продать на " + str(abs(diff_portions[SHARES])) + " рублей")
+if diff_portions[GOLD]>0:
+    print("- Золото: купить на " + str(diff_portions[GOLD]) + " рублей")
+else:
+    print("- Золото: продать на " + str(abs(diff_portions[GOLD])) + " рублей")
