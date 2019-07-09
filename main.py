@@ -6,6 +6,7 @@ import re
 REPORT_PATH = r"C:\Users\User\Desktop\brokercode_030719_030719_D.html"
 file = open(REPORT_PATH,'r',encoding="utf-8")
 
+# Используемые типы активов
 BONDS = 'ОБЛИГАЦИИ'
 SHARES = 'АКЦИИ'
 GOLD = 'ЗОЛОТО'
@@ -133,6 +134,7 @@ for cb in pcb:
             my_portfel[cb['Тип']] = my_portfel[cb['Тип']] + cb['Конец периода: Рыночная стоимость, без НКД']
 
 additional_money = float(input("Введите сумму, которую собираемся доложить на счёт, рублей: "))
+# additional_money = 0
 my_portfel['Денежные средства, руб.'] = my_portfel['Денежные средства, руб.'] + additional_money
 my_portfel['Оценка, руб'] = my_portfel['Оценка, руб'] + additional_money
 
@@ -150,6 +152,7 @@ diff_portions = {
     GOLD: round((ideal_portfel[GOLD] - current_portions[GOLD])*my_portfel['Оценка, руб']/100,2)
 }
 
+# Вывод в консоль
 print("-------------------------------------------------")
 print("** Параметры портфеля в настоящее время (с учётом докладываемой суммы) **")
 print("- Стоимость ценных бумаг: "+ str(my_portfel['Оценка портфеля ЦБ, руб']) + " рублей")
@@ -175,3 +178,27 @@ if diff_portions[GOLD]>0:
     print("- Золото: купить на " + str(diff_portions[GOLD]) + " рублей")
 else:
     print("- Золото: продать на " + str(abs(diff_portions[GOLD])) + " рублей")
+"""
+# Вывод в Jupyter Notebook
+from IPython.display import HTML, display
+
+html1 = ("<h2 style='padding: 8px'>Параметры портфеля в настоящее время (с учётом докладываемой суммы)</h2>"
+         "<table class='table table-striped'>"
+         "<thead> <tr> <th>Параметр</th> <th>Значение</th></tr> </thead>"
+         "<tbody>"
+         "<tr> <th scope='row'>Стоимость ценных бумаг, руб.</th> <td>"+ str(my_portfel['Оценка портфеля ЦБ, руб']) + "</td> </tr>"
+         "<tr> <th scope='row'>Денежные средства, руб.</th> <td>"+ str(my_portfel['Денежные средства, руб.']) + "</td> </tr>"
+         "<tr> <th scope='row'>Полная стоимость портфеля, руб.</th> <td>"+ str(my_portfel['Оценка, руб']) + "</td> </tr>"
+         "</tbody> </table>")
+html2 = ("<h2 style='padding: 8px'>Анализ типов активов (с учётом докладываемой суммы)</h2>"
+          "<table class='table table-striped'>"
+          "<thead> <tr> <th>Актив</th> <th>Текущая доля, %</th><th>Идеальная доля, %</th><th>Разница, руб</th></tr> </thead>"
+          "<tbody>"
+          "<tr> <th scope='row'>Облигации</th> <td>"+ str(current_portions[BONDS]) + "</td> <td>"+ str(ideal_portfel[BONDS]) + "</td> <td>"+ str(diff_portions[BONDS]) + "</td> </tr>"
+          "<tr> <th scope='row'>Акции</th> <td>"+ str(current_portions[SHARES]) + "</td> <td>"+ str(ideal_portfel[SHARES]) + "</td> <td>"+ str(diff_portions[SHARES]) + "</td> </tr>"
+          "<tr> <th scope='row'>Золото</th> <td>"+ str(current_portions[GOLD]) + "</td> <td>"+ str(ideal_portfel[GOLD]) + "</td> <td>"+ str(diff_portions[GOLD]) + "</td> </tr>"
+          "<tr> <th scope='row'>Денежные средства</th> <td>"+ str(round(my_portfel['Денежные средства, руб.']*100/my_portfel['Оценка, руб'],2)) + "</td> </tr>"
+          "</tbody> </table>")
+display(HTML(html1))
+display(HTML(html2))
+"""
