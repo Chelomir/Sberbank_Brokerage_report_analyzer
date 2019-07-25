@@ -155,29 +155,29 @@ diff_portions = {
 # Вывод в консоль
 print("-------------------------------------------------")
 print("** Параметры портфеля в настоящее время (с учётом докладываемой суммы) **")
-print("- Стоимость ценных бумаг: "+ str(my_portfel['Оценка портфеля ЦБ, руб']) + " рублей")
-print("- Денежные средства: "+ str(my_portfel['Денежные средства, руб.']) + " рублей")
-print("- Полная стоимость портфеля: "+ str(my_portfel['Оценка, руб']) + " рублей")
+print(f"- Стоимость ценных бумаг:    {my_portfel['Оценка портфеля ЦБ, руб']:11} рублей")
+print(f"- Денежные средства:         {my_portfel['Денежные средства, руб.']:11} рублей")
+print(f"- Полная стоимость портфеля: {my_portfel['Оценка, руб']:11} рублей")
 print("-------------------------------------------------")
 print("** Доли активов в настоящее время (с учётом докладываемой суммы) **")
-print("- Облигации, %: " + str(current_portions[BONDS]))
-print("- Акции, %: " + str(current_portions[SHARES]))
-print("- Золото, %: " + str(current_portions[GOLD]))
-print("- Денежные средства, %: " + str(round(my_portfel['Денежные средства, руб.']*100/my_portfel['Оценка, руб'],2)))
+print(f"- Облигации, %:          {current_portions[BONDS]:5}")
+print(f"- Акции, %:              {current_portions[SHARES]:5}")
+print(f"- Золото, %:             {current_portions[GOLD]:5}")
+print(f"- Денежные средства, %:  {round(my_portfel['Денежные средства, руб.']*100/my_portfel['Оценка, руб'],2):5}")
 print("-------------------------------------------------")
 print("** Необходимые изменения для достижения идеальных пропорций **")
 if diff_portions[BONDS]>0:
-    print("- Облигации: купить на " + str(diff_portions[BONDS]) + " рублей")
+    print(f"- Облигации:    купить на {diff_portions[BONDS]:11} рублей")
 else:
-    print("- Облигации: продать на " + str(abs(diff_portions[BONDS])) + " рублей")
+    print(f"- Облигации:    продать на {abs(diff_portions[BONDS]):11} рублей")
 if diff_portions[SHARES]>0:
-    print("- Акции: купить на " + str(diff_portions[SHARES]) + " рублей")
+    print(f"- Акции:        купить на {diff_portions[SHARES]:11} рублей")
 else:
-    print("- Акции: продать на " + str(abs(diff_portions[SHARES])) + " рублей")
+    print(f"- Акции:        продать на {abs(diff_portions[SHARES]):11} рублей")
 if diff_portions[GOLD]>0:
-    print("- Золото: купить на " + str(diff_portions[GOLD]) + " рублей")
+    print(f"- Золото:       купить на {diff_portions[GOLD]:11} рублей")
 else:
-    print("- Золото: продать на " + str(abs(diff_portions[GOLD])) + " рублей")
+    print(f"- Золото:       продать на {abs(diff_portions[GOLD]):11} рублей")
 """
 # Вывод в Jupyter Notebook
 from IPython.display import HTML, display
