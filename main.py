@@ -27,22 +27,27 @@ pcb = scrap.get_info(REPORT_PATH)
 df_pcb = pd.DataFrame(pcb)
 
 # Полная стоимость портфеля
-full_portfel_cost = round(df_pcb.agg({'Конец периода: Рыночная стоимость, без НКД' : ['sum']}).to_numpy()[0][0],2)
+full_portfel_cost = round(df_pcb.agg({'Рыночная стоимость' : ['sum']}).to_numpy()[0][0],2)
 
-# Загруженные данные
-#print(df_pcb.head())
-
-# Сортируем по стоимости акций в портфеле
-#print(df_pcb.sort_values(by=['Конец периода: Рыночная стоимость, без НКД'],ascending=False).head())
+df_pcb['% от полной стоимости портфеля'] = df_pcb['Рыночная стоимость']*100/full_portfel_cost
 
 # Суммы, сгруппированные по типам актива
-df_grouped_and_aggregated_pcb = df_pcb.groupby(["Тип"]).agg({'Конец периода: Рыночная стоимость, без НКД' : ['sum']})
+df_grouped_and_aggregated_pcb = df_pcb.groupby(["Тип"]).agg({'Рыночная стоимость' : ['sum']})
 
 # Вынимаем объект dict_portfel, содержащий стоимости типов актива в портфеле
 for val in df_grouped_and_aggregated_pcb.to_dict().values():
     dict_portfel = val
 
-#print(dict_portfel)
+# Создаём датафрейм с одними акциями и сортируем по стоимости
+df_pcb_shares = df_pcb[df_pcb['Тип'] == SHARES].sort_values(by=['Рыночная стоимость'],ascending=False)
+df_pcb_shares['% от стоимости всех акций'] = df_pcb['Рыночная стоимость']*100/dict_portfel[SHARES]
+print(df_pcb_shares.head(50))
+
+# Суммы, сгруппированные по секторам
+df_otrasl_grouped_and_aggregated_pcb = df_pcb_shares.groupby(["Сектор"]).agg({'Рыночная стоимость' : ['sum']}) #.sort_values(by=['sum'],ascending=False)
+# TODO: Добавить столбец - % от стоимости всех секторов = стомость_сектора/стоимость_всех_акций
+# TODO: Отсортировать
+print(df_otrasl_grouped_and_aggregated_pcb.sort_index(level = 1))
 
 additional_money = float(input("Введите сумму, которую собираемся доложить на счёт, рублей: "))
 # additional_money = 0

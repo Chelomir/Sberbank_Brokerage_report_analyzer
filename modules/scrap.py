@@ -1,6 +1,9 @@
 # Регулярные выражения в Питоне
 # https://habr.com/ru/post/349860/
 import re
+import json
+import requests
+from bs4 import BeautifulSoup
 
 # TODO: Эти переменные используются и в main.py и в scrap.py - Надо оставить в одном месте
 # Используемые типы активов
@@ -60,7 +63,7 @@ def get_info(path):
                     pcb.append(
                             {
                                 'Тип': CASH,
-                                'Конец периода: Рыночная стоимость, без НКД': float(re.split(r">",temp_arr[2])[1].replace(' ','')),
+                                'Рыночная стоимость': float(re.split(r">",temp_arr[2])[1].replace(' ','')),
                                 'ISIN ценной бумаги': None,
                                 'Наименование': 'Денежные средства, руб.'
                             }
@@ -88,7 +91,8 @@ def get_info(path):
                     # my_cb['Конец периода: Количество, шт'] = re.split(r">",temp_arr[8])[1]
                     # my_cb['Конец периода: Номинал'] = re.split(r">",temp_arr[9])[1]
                     # my_cb['Конец периода: Рыночная цена'] = re.split(r">",temp_arr[10])[1]
-                    my_cb['Конец периода: Рыночная стоимость, без НКД'] = float(re.split(r">",temp_arr[11])[1].replace(' ',''))
+                    #### my_cb['Конец периода: Рыночная стоимость, без НКД'] = float(re.split(r">",temp_arr[11])[1].replace(' ',''))
+                    my_cb['Рыночная стоимость'] = float(re.split(r">",temp_arr[11])[1].replace(' ',''))
                     # my_cb['Конец периода: НКД'] = re.split(r">",temp_arr[12])[1]
                     # my_cb['Изменение за период: Количество, шт'] = re.split(r">",temp_arr[13])[1]
                     # my_cb['Изменение за период: Рыночная стоимость'] = re.split(r">",temp_arr[14])[1]
@@ -120,17 +124,45 @@ def get_info(path):
             print("!!!Ошибка чтения (может негативно влиять на результат)")
     file.close()
 
+    '''
+    Пытаемся прочитать сектора из файла. Если файла нет, то пишем его с данных из smart-lab.ru
+    '''
+    try:
+        with open('codes.json', 'r', encoding='utf-8') as json_data_file:
+            codes = json.load(json_data_file)
+    except FileNotFoundError:
+        soup = BeautifulSoup(requests.get(r'https://smart-lab.ru/forum/sectors/').text,'html.parser')
+        sector_blocks = soup.findAll('div', {'class': "kompanii_sector"})
+        codes = {}
+        for sector_block in sector_blocks:
+            sector_name = sector_block.find('h2').text
+            codes_urls = sector_block.findAll('li')
+            for code_url in codes_urls:
+                code = code_url.find('a')['href'][7:]
+                codes[code] = sector_name
+        with open('codes.json', 'w', encoding='utf-8') as f:
+            json.dump(codes, f, ensure_ascii=False, indent=4)
+
     # здесь мы имеем 2 заполненных массива
     # - pcb - содержит объекты-ценные бумаги которые есть в нашем портфеле, со стоимостью и количеством
     # - scb - содержит объекты-ценные бумаги с описанием их типа (Облигация, акция и пр.)
     # Скрестить эти два массива мы можем по атрибуту *ISIN ценной бумаги*
-
+    # Заодно проставляем сектора
     for cb in pcb:
         for b in scb:
             if cb['ISIN ценной бумаги'] == b['ISIN ценной бумаги']:
                 cb['Тип'] = ACTIVE_TYPES[b['Вид, Категория, Тип, иная информация']]
                 cb['Код'] = b['Код']
-
-    # TODO: Добавить атрибут "Отрасль" для активов с типом SHARES
+                if (cb['Тип'] == SHARES):
+                    try:
+                        sector = codes[cb['Код']]
+                    except:
+                        try:
+                            # Вероятно код от префа, т.е. для проверки надо убрать последнюю P
+                            temp_code = cb['Код'][:4]
+                            sector = codes[temp_code]
+                        except:                         
+                            sector = "НЕ ОПОЗНАН"
+                    cb['Сектор'] = sector
 
     return pcb
