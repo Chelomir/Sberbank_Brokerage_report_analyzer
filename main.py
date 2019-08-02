@@ -41,16 +41,22 @@ for val in df_grouped_and_aggregated_pcb.to_dict().values():
 # Создаём датафрейм с одними акциями и сортируем по стоимости
 df_pcb_shares = df_pcb[df_pcb['Тип'] == SHARES].sort_values(by=['Рыночная стоимость'],ascending=False)
 df_pcb_shares['% от стоимости всех акций'] = df_pcb['Рыночная стоимость']*100/dict_portfel[SHARES]
-print(df_pcb_shares.head(50))
+#print(df_pcb_shares.head(50))
 
 # Суммы, сгруппированные по секторам
-df_otrasl_grouped_and_aggregated_pcb = df_pcb_shares.groupby(["Сектор"]).agg({'Рыночная стоимость' : ['sum']}) #.sort_values(by=['sum'],ascending=False)
-# TODO: Добавить столбец - % от стоимости всех секторов = стомость_сектора/стоимость_всех_акций
-# TODO: Отсортировать
-print(df_otrasl_grouped_and_aggregated_pcb.sort_index(level = 1))
+df_otrasl_grouped_and_aggregated_pcb = df_pcb_shares.groupby(["Сектор"]).agg({'Рыночная стоимость' : ['sum']})
+#print(df_otrasl_grouped_and_aggregated_pcb)
+# Сортируем
+# TODO: Попытаться разобраться как работает строчка сортировки ниже (нашёл опытным путём, основа - stack())
+df_otrasl_grouped_and_aggregated_pcb = df_otrasl_grouped_and_aggregated_pcb.stack().sort_values(by=['Рыночная стоимость'],ascending=False)
+# TODO: Убрать sum
+#print(df_otrasl_grouped_and_aggregated_pcb)
+# Добавляем столбец - % от стоимости всех секторов = стомость_сектора/стоимость_всех_акций
+df_otrasl_grouped_and_aggregated_pcb['% от стоимости всех секторов'] = df_otrasl_grouped_and_aggregated_pcb['Рыночная стоимость']*100/dict_portfel[SHARES]
+print(df_otrasl_grouped_and_aggregated_pcb)
 
-additional_money = float(input("Введите сумму, которую собираемся доложить на счёт, рублей: "))
-# additional_money = 0
+# additional_money = float(input("Введите сумму, которую собираемся доложить на счёт, рублей: "))
+additional_money = 0
 full_portfel_cost = full_portfel_cost + additional_money
 dict_portfel[CASH] = dict_portfel[CASH] + additional_money
 
