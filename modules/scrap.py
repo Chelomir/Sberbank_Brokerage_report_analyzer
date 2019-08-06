@@ -5,7 +5,6 @@ import json
 import requests
 from bs4 import BeautifulSoup
 
-# TODO: Эти переменные используются и в main.py и в scrap.py - Надо оставить в одном месте
 # Используемые типы активов
 BONDS = 'ОБЛИГАЦИИ'
 SHARES = 'АКЦИИ'
