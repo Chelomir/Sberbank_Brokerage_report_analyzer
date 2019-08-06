@@ -34,7 +34,9 @@ for val in df_grouped_and_aggregated_pcb.to_dict().values():
 # Создаём датафрейм с одними акциями и сортируем по стоимости
 df_pcb_shares = df_pcb[df_pcb['Тип'] == scrap.SHARES].sort_values(by=['Рыночная стоимость'],ascending=False)
 df_pcb_shares['% от стоимости всех акций'] = df_pcb['Рыночная стоимость']*100/dict_portfel[scrap.SHARES]
-#print(df_pcb_shares.head(50))
+print("-------------------------------------------------")
+print("** Акции в портфеле, отсортированные по стоимости **")
+print(df_pcb_shares.head(100))
 
 # Суммы, сгруппированные по секторам
 df_otrasl_grouped_and_aggregated_pcb = df_pcb_shares.groupby(["Сектор"]).agg({'Рыночная стоимость' : ['sum']})
@@ -46,6 +48,8 @@ df_otrasl_grouped_and_aggregated_pcb = df_otrasl_grouped_and_aggregated_pcb.stac
 #print(df_otrasl_grouped_and_aggregated_pcb)
 # Добавляем столбец - % от стоимости всех секторов = стомость_сектора/стоимость_всех_акций
 df_otrasl_grouped_and_aggregated_pcb['% от стоимости всех секторов'] = df_otrasl_grouped_and_aggregated_pcb['Рыночная стоимость']*100/dict_portfel[scrap.SHARES]
+print("-------------------------------------------------")
+print("** Сектора в портфеле, отсортированные по стоимости **")
 print(df_otrasl_grouped_and_aggregated_pcb)
 
 # additional_money = float(input("Введите сумму, которую собираемся доложить на счёт, рублей: "))
