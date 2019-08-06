@@ -35,22 +35,39 @@ for val in df_grouped_and_aggregated_pcb.to_dict().values():
 df_pcb_shares = df_pcb[df_pcb['Тип'] == scrap.SHARES].sort_values(by=['Рыночная стоимость'],ascending=False)
 df_pcb_shares['% от стоимости всех акций'] = df_pcb['Рыночная стоимость']*100/dict_portfel[scrap.SHARES]
 print("-------------------------------------------------")
-print("** Акции в портфеле, отсортированные по стоимости **")
-print(df_pcb_shares.head(100))
+print("** TOP 5 Акции в портфеле, отсортированные по стоимости **")
+print(df_pcb_shares.head(5))
 
-# Суммы, сгруппированные по секторам
+# Суммы акций, сгруппированные по секторам
 df_otrasl_grouped_and_aggregated_pcb = df_pcb_shares.groupby(["Сектор"]).agg({'Рыночная стоимость' : ['sum']})
-#print(df_otrasl_grouped_and_aggregated_pcb)
 # Сортируем
 # TODO: Попытаться разобраться как работает строчка сортировки ниже (нашёл опытным путём, основа - stack())
 df_otrasl_grouped_and_aggregated_pcb = df_otrasl_grouped_and_aggregated_pcb.stack().sort_values(by=['Рыночная стоимость'],ascending=False)
 # TODO: Убрать sum
-#print(df_otrasl_grouped_and_aggregated_pcb)
 # Добавляем столбец - % от стоимости всех секторов = стомость_сектора/стоимость_всех_акций
-df_otrasl_grouped_and_aggregated_pcb['% от стоимости всех секторов'] = df_otrasl_grouped_and_aggregated_pcb['Рыночная стоимость']*100/dict_portfel[scrap.SHARES]
+df_otrasl_grouped_and_aggregated_pcb['% от стоимости всех акций'] = df_otrasl_grouped_and_aggregated_pcb['Рыночная стоимость']*100/dict_portfel[scrap.SHARES]
 print("-------------------------------------------------")
-print("** Сектора в портфеле, отсортированные по стоимости **")
+print("** Сектора в портфеле акций, отсортированные по стоимости **")
 print(df_otrasl_grouped_and_aggregated_pcb)
+
+# Создаём датафрейм с одними облигациями и сортируем по стоимости
+df_pcb_bonds = df_pcb[df_pcb['Тип'] == scrap.BONDS].sort_values(by=['Рыночная стоимость'],ascending=False)
+df_pcb_bonds['% от стоимости всех облигаций'] = df_pcb['Рыночная стоимость']*100/dict_portfel[scrap.BONDS]
+print("-------------------------------------------------")
+print("** TOP 5 Облигации в портфеле, отсортированные по стоимости **")
+print(df_pcb_bonds.head(5))
+
+# Суммы облигаций, сгруппированные по типу ОФЗ, Субъект или Корпорат
+df_tip_grouped_and_aggregated_pcb = df_pcb_bonds.groupby(["Сектор"]).agg({'Рыночная стоимость' : ['sum']})
+# Сортируем
+# TODO: Попытаться разобраться как работает строчка сортировки ниже (нашёл опытным путём, основа - stack())
+df_tip_grouped_and_aggregated_pcb = df_tip_grouped_and_aggregated_pcb.stack().sort_values(by=['Рыночная стоимость'],ascending=False)
+# TODO: Убрать sum
+# Добавляем столбец - % от стоимости всех облигаций = стомость_типа/стоимость_всех_облигаций
+df_tip_grouped_and_aggregated_pcb['% от стоимости всех облигаций'] = df_tip_grouped_and_aggregated_pcb['Рыночная стоимость']*100/dict_portfel[scrap.BONDS]
+print("-------------------------------------------------")
+print("** Типы в портфеле облигаций, отсортированные по стоимости **")
+print(df_tip_grouped_and_aggregated_pcb)
 
 # additional_money = float(input("Введите сумму, которую собираемся доложить на счёт, рублей: "))
 additional_money = 0
