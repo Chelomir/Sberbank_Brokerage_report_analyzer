@@ -24,105 +24,65 @@ ACTIVE_TYPES = {
 }
 
 def get_info(path):
-    '''Получаем массив данных из HTML-файла, расположенного по пути path   '''
-    reading_a = False
+    '''(НЕ ЗАКОНЧЕНО) Получаем массив данных из HTML-файла, расположенного по пути path   '''
     # Портфель Ценных Бумаг
     pcb = []
-    reading_pcb = False
     # Справочник Ценных Бумаг
     scb = []
-    reading_scb = False
-    
-    file = open(path,'r',encoding="utf-8")
+    with open(path, 'r',encoding="utf-8", errors = "ignore") as file:
+        bs = BeautifulSoup(file.read(), 'html.parser')
+        # Таблица Оценка активов
+        table_ocenka_activov = bs.find(string = re.compile("Оценка активов")).parent.findNext('table')
+        cash = float(table_ocenka_activov.find('td', string = re.compile("Фондовый рынок")).nextSibling.nextSibling.text.replace(' ',''))
+        pcb.append(
+                {
+                    'Тип': CASH,
+                    'Рыночная стоимость': cash,
+                    'ISIN ценной бумаги': None,
+                    'Наименование': 'Денежные средства, руб.'
+                }
+            )
+        # Таблица Портфель Ценных Бумаг
+        table_portfel_cennyh_bumag = bs.find(string = re.compile("Портфель Ценных Бумаг")).parent.findNext('table')
+        cbs = table_portfel_cennyh_bumag.findAll('td',{'style':"font-size='4px';"})
+        for cb in cbs:
+            my_cb = {}
+            my_cb['Наименование'] = cb.text
+            cb_cells = cb.findNextSiblings()
+            my_cb['ISIN ценной бумаги'] = cb_cells[0].text
+            # my_cb['Валюта рыночной цены'] = cb_cells[1].text
+            # my_cb['Начало периода: Количество, шт'] = cb_cells[2].text
+            # my_cb['Начало периода: Номинал'] = cb_cells[3].text
+            # my_cb['Начало периода: Рыночная цена'] = cb_cells[4].text
+            # my_cb['Начало периода: Рыночная стоимость, без НКД'] = cb_cells[5].text
+            # my_cb['Начало периода: НКД'] = cb_cells[6].text
+            # my_cb['Конец периода: Количество, шт'] = cb_cells[7].text
+            # my_cb['Конец периода: Номинал'] = cb_cells[8].text
+            # my_cb['Конец периода: Рыночная цена'] = cb_cells[9].text
+            #### my_cb['Конец периода: Рыночная стоимость, без НКД'] = cb_cells[10].text
+            my_cb['Рыночная стоимость'] = float(cb_cells[10].text.replace(' ',''))
+            # my_cb['Конец периода: НКД'] = cb_cells[11].text
+            # my_cb['Изменение за период: Количество, шт'] = cb_cells[12].text
+            # my_cb['Изменение за период: Рыночная стоимость'] = cb_cells[13].text
+            # my_cb['Плановые показатели: Плановые зачисления по сделкам, шт'] = cb_cells[14].text
+            # my_cb['Плановые показатели: Плановые списания по сделкам, шт'] = cb_cells[15].text
+            # my_cb['Плановые показатели: Плановый исходящий остаток, шт'] = cb_cells[16].text
+            pcb.append(my_cb)
 
-    try:
-        for line in file:
-            # Определяем, что подошли к концу отчёта
-            if line.find("Подпись") != -1:
-                end_of_report = True
+        # Таблица Справочник Ценных Бумаг
+        table_spravochnik_cennyh_bumag = bs.find(string = re.compile("Справочник Ценных Бумаг")).parent.findNext('table')
+        sbs = table_spravochnik_cennyh_bumag.findAll('td',{'style':"font-size='4px';"})
+        for sb in sbs:
+            cb = {}
+            # cb['Наименование'] = sb.text
+            sb_cells = sb.findNextSiblings()
+            cb['Код'] = sb_cells[0].text
+            cb['ISIN ценной бумаги'] = sb_cells[1].text
+            # cb['Эмитент'] = sb_cells[2].text
+            cb['Вид, Категория, Тип, иная информация'] = sb_cells[3].text
+            # cb['Выпуск, Транш, Серия'] = sb_cells[4].text
+            scb.append(cb)
 
-            if line.find("Оценка активов") != -1:
-                reading_a = True
-            if line.find("Портфель Ценных Бумаг") != -1:
-                reading_pcb = True
-            if line.find("Справочник Ценных Бумаг") != -1:
-                reading_scb = True
-
-            # читаем Оценка активов для определение объёма денежных и стоимости портфеля (для фондового рынка, т.к. срочным не занимаюсь)
-            if reading_a:
-                # определяем конец таблицы
-                if line.find(r"/table") != -1:
-                    reading_a = False
-                # из строчки Фондовый рынок берём данные        
-                if line.find(r'Фондовый рынок') != -1:
-                    temp_arr = re.split(r"</td>",line)
-                    #my_portfel['Оценка портфеля ЦБ, руб'] = float(re.split(r">",temp_arr[1])[1].replace(' ',''))
-                    #my_portfel['Денежные средства, руб.'] = float(re.split(r">",temp_arr[2])[1].replace(' ',''))
-                    #my_portfel['Оценка, руб'] = float(re.split(r">",temp_arr[3])[1].replace(' ',''))
-                    # !!!!!!!!!!!!
-                    pcb.append(
-                            {
-                                'Тип': CASH,
-                                'Рыночная стоимость': float(re.split(r">",temp_arr[2])[1].replace(' ','')),
-                                'ISIN ценной бумаги': None,
-                                'Наименование': 'Денежные средства, руб.'
-                            }
-                        )
-                    
-            # читаем Портфель Ценных Бумаг для создания справочника имеющихся ЦБ. 
-            if reading_pcb:
-                # определяем конец таблицы
-                if line.find(r"/table") != -1:
-                    reading_pcb = False
-                # каждую строчку таблицы преобразуем в объект my_cb и добавляем к массиву pcb
-                if line.find(r'4px') != -1:
-                    # ценная бумага из строчки
-                    my_cb = {}
-                    # TODO: Когда-нибудь попробовать создать регулярное выражение, которое сразу будет выдавать массив значений (без необходимости двойного split'а)
-                    temp_arr = re.split(r"</td>",line)
-                    my_cb['Наименование'] = re.split(r">",temp_arr[0])[1]
-                    my_cb['ISIN ценной бумаги'] = re.split(r">",temp_arr[1])[1]
-                    # my_cb['Валюта рыночной цены'] = re.split(r">",temp_arr[2])[1]
-                    # my_cb['Начало периода: Количество, шт'] = re.split(r">",temp_arr[3])[1]
-                    # my_cb['Начало периода: Номинал'] = re.split(r">",temp_arr[4])[1]
-                    # my_cb['Начало периода: Рыночная цена'] = re.split(r">",temp_arr[5])[1]
-                    # my_cb['Начало периода: Рыночная стоимость, без НКД'] = re.split(r">",temp_arr[6])[1]
-                    # my_cb['Начало периода: НКД'] = re.split(r">",temp_arr[7])[1]
-                    # my_cb['Конец периода: Количество, шт'] = re.split(r">",temp_arr[8])[1]
-                    # my_cb['Конец периода: Номинал'] = re.split(r">",temp_arr[9])[1]
-                    # my_cb['Конец периода: Рыночная цена'] = re.split(r">",temp_arr[10])[1]
-                    #### my_cb['Конец периода: Рыночная стоимость, без НКД'] = float(re.split(r">",temp_arr[11])[1].replace(' ',''))
-                    my_cb['Рыночная стоимость'] = float(re.split(r">",temp_arr[11])[1].replace(' ',''))
-                    # my_cb['Конец периода: НКД'] = re.split(r">",temp_arr[12])[1]
-                    # my_cb['Изменение за период: Количество, шт'] = re.split(r">",temp_arr[13])[1]
-                    # my_cb['Изменение за период: Рыночная стоимость'] = re.split(r">",temp_arr[14])[1]
-                    # my_cb['Плановые показатели: Плановые зачисления по сделкам, шт'] = re.split(r">",temp_arr[15])[1]
-                    # my_cb['Плановые показатели: Плановые списания по сделкам, шт'] = re.split(r">",temp_arr[16])[1]
-                    # my_cb['Плановые показатели: Плановый исходящий остаток, шт'] = re.split(r">",temp_arr[17])[1]
-                    pcb.append(my_cb)
-
-            # читаем Справочник Ценных Бумаг для определения типа актива. В дальнейшем, на его основе, проставим в справочнике имеющихся ЦБ проставим признак типа актива
-            if reading_scb:
-                # определяем конец таблицы
-                if line.find(r"/table") != -1:
-                    reading_scb = False
-                # каждую строчку таблицы преобразуем в объект cb и добавляем к массиву scb
-                if line.find(r'4px') != -1:
-                    # ценная бумага из строчки
-                    cb = {}
-                    # TODO: Когда-нибудь попробовать создать регулярное выражение, которое сразу будет выдавать массив значений (без необходимости двойного split'а)
-                    temp_arr = re.split(r"</td>",line)
-                    # cb['Наименование'] = re.split(r">",temp_arr[0])[1]
-                    cb['Код'] = re.split(r">",temp_arr[1])[1]
-                    cb['ISIN ценной бумаги'] = re.split(r">",temp_arr[2])[1]
-                    # cb['Эмитент'] = re.split(r">",temp_arr[3])[1]
-                    cb['Вид, Категория, Тип, иная информация'] = re.split(r">",temp_arr[4])[1]
-                    # cb['Выпуск, Транш, Серия'] = re.split(r">",temp_arr[5])[1]
-                    scb.append(cb)
-    except UnicodeDecodeError:
-        if end_of_report == False:
-            print("!!!Ошибка чтения (может негативно влиять на результат)")
-    file.close()
 
     '''
     Пытаемся прочитать сектора из файла. Если файла нет, то пишем его с данных из smart-lab.ru
@@ -143,11 +103,13 @@ def get_info(path):
         with open('codes.json', 'w', encoding='utf-8') as f:
             json.dump(codes, f, ensure_ascii=False, indent=4)
 
-    # здесь мы имеем 2 заполненных массива
-    # - pcb - содержит объекты-ценные бумаги которые есть в нашем портфеле, со стоимостью и количеством
-    # - scb - содержит объекты-ценные бумаги с описанием их типа (Облигация, акция и пр.)
-    # Скрестить эти два массива мы можем по атрибуту *ISIN ценной бумаги*
-    # Заодно проставляем сектора
+    '''
+    здесь мы имеем 2 заполненных массива
+    - pcb - содержит объекты-ценные бумаги которые есть в нашем портфеле, со стоимостью и количеством
+    - scb - содержит объекты-ценные бумаги с описанием их типа (Облигация, акция и пр.)
+    Скрестить эти два массива мы можем по атрибуту *ISIN ценной бумаги*
+    Заодно проставляем сектора
+    '''
     for cb in pcb:
         for b in scb:
             if cb['ISIN ценной бумаги'] == b['ISIN ценной бумаги']:
