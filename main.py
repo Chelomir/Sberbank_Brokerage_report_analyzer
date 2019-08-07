@@ -36,7 +36,7 @@ df_pcb_shares = df_pcb[df_pcb['Тип'] == scrap.SHARES].sort_values(by=['Рын
 df_pcb_shares['% от стоимости всех акций'] = df_pcb['Рыночная стоимость']*100/dict_portfel[scrap.SHARES]
 print("-------------------------------------------------")
 print("** TOP 5 Акции в портфеле, отсортированные по стоимости **")
-print(df_pcb_shares.head(5))
+print(df_pcb_shares[['Код','Наименование','Рыночная стоимость','Сектор','% от полной стоимости портфеля','% от стоимости всех акций']].head(5))
 
 # Суммы акций, сгруппированные по секторам
 df_otrasl_grouped_and_aggregated_pcb = df_pcb_shares.groupby(["Сектор"]).agg({'Рыночная стоимость' : ['sum']})
@@ -55,7 +55,7 @@ df_pcb_bonds = df_pcb[df_pcb['Тип'] == scrap.BONDS].sort_values(by=['Рыно
 df_pcb_bonds['% от стоимости всех облигаций'] = df_pcb['Рыночная стоимость']*100/dict_portfel[scrap.BONDS]
 print("-------------------------------------------------")
 print("** TOP 5 Облигации в портфеле, отсортированные по стоимости **")
-print(df_pcb_bonds.head(5))
+print(df_pcb_bonds[['Наименование','Рыночная стоимость','Сектор','% от полной стоимости портфеля','% от стоимости всех облигаций']].head(5))
 
 # Суммы облигаций, сгруппированные по типу ОФЗ, Субъект или Корпорат
 df_tip_grouped_and_aggregated_pcb = df_pcb_bonds.groupby(["Сектор"]).agg({'Рыночная стоимость' : ['sum']})
