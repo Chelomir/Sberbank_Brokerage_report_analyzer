@@ -1,7 +1,8 @@
+# https://devpractice.ru/python-lesson-18-annotations/
 # https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.product.html#pandas.DataFrame.product
-import pandas as pd
+import pandas as pd # type:ignore
 
-from modules import scrap
+from modules import scrap # type:ignore
 
 # Целевые параметры портфеля
 ideal_portfel = {
@@ -35,8 +36,8 @@ for val in df_grouped_and_aggregated_pcb.to_dict().values():
 df_pcb_shares = df_pcb[df_pcb['Тип'] == scrap.SHARES].sort_values(by=['Рыночная стоимость'],ascending=False)
 df_pcb_shares['% от стоимости всех акций'] = df_pcb['Рыночная стоимость']*100/dict_portfel[scrap.SHARES]
 print("-------------------------------------------------")
-print("** TOP 5 Акции в портфеле, отсортированные по стоимости **")
-print(df_pcb_shares[['Код','Наименование','Рыночная стоимость','Сектор','% от полной стоимости портфеля','% от стоимости всех акций']].head(5))
+print("** TOP 10 Акции в портфеле, отсортированные по стоимости **")
+print(df_pcb_shares[['Код','Наименование','Рыночная стоимость','Сектор','% от полной стоимости портфеля','% от стоимости всех акций']].head(10))
 
 # Суммы акций, сгруппированные по секторам
 df_otrasl_grouped_and_aggregated_pcb = df_pcb_shares.groupby(["Сектор"]).agg({'Рыночная стоимость' : ['sum']})
@@ -54,8 +55,8 @@ print(df_otrasl_grouped_and_aggregated_pcb)
 df_pcb_bonds = df_pcb[df_pcb['Тип'] == scrap.BONDS].sort_values(by=['Рыночная стоимость'],ascending=False)
 df_pcb_bonds['% от стоимости всех облигаций'] = df_pcb['Рыночная стоимость']*100/dict_portfel[scrap.BONDS]
 print("-------------------------------------------------")
-print("** TOP 5 Облигации в портфеле, отсортированные по стоимости **")
-print(df_pcb_bonds[['Наименование','Рыночная стоимость','Сектор','% от полной стоимости портфеля','% от стоимости всех облигаций']].head(5))
+print("** TOP 10 Облигации в портфеле, отсортированные по стоимости **")
+print(df_pcb_bonds[['Наименование','Рыночная стоимость','Сектор','% от полной стоимости портфеля','% от стоимости всех облигаций']].head(10))
 
 # Суммы облигаций, сгруппированные по типу ОФЗ, Субъект или Корпорат
 df_tip_grouped_and_aggregated_pcb = df_pcb_bonds.groupby(["Сектор"]).agg({'Рыночная стоимость' : ['sum']})
