@@ -6,9 +6,9 @@ from modules import scrap # type:ignore
 
 # Целевые параметры портфеля
 ideal_portfel = {
-    scrap.BONDS: 40,
+    scrap.BONDS: 41,
     scrap.GOLD: 10,
-    scrap.SHARES: 50,
+    scrap.SHARES: 49,
     scrap.CASH: 0
 }
 
