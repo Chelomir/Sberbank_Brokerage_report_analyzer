@@ -1,8 +1,8 @@
 # https://devpractice.ru/python-lesson-18-annotations/
 # https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.product.html#pandas.DataFrame.product
-import pandas as pd # type:ignore
+import pandas as pd
 
-from modules import scrap # type:ignore
+from modules import scrap
 
 # Целевые параметры портфеля
 ideal_portfel = {
