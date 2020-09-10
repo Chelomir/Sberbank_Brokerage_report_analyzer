@@ -35,9 +35,6 @@ for val in df_grouped_and_aggregated_pcb.to_dict().values():
 # Создаём датафрейм с одними акциями и сортируем по стоимости
 df_pcb_shares = df_pcb[df_pcb['Тип'] == scrap.SHARES].sort_values(by=['Рыночная стоимость'],ascending=False)
 df_pcb_shares['% от стоимости всех акций'] = df_pcb['Рыночная стоимость']*100/dict_portfel[scrap.SHARES]
-print("-------------------------------------------------")
-print("** TOP 10 Акции в портфеле, отсортированные по стоимости **")
-print(df_pcb_shares[['Код','Наименование','Рыночная стоимость','Сектор','% от полной стоимости портфеля','% от стоимости всех акций']].head(10))
 
 # Суммы акций, сгруппированные по секторам
 df_otrasl_grouped_and_aggregated_pcb = df_pcb_shares.groupby(["Сектор"]).agg({'Рыночная стоимость' : ['sum']})
@@ -47,16 +44,10 @@ df_otrasl_grouped_and_aggregated_pcb = df_otrasl_grouped_and_aggregated_pcb.stac
 # TODO: Убрать sum
 # Добавляем столбец - % от стоимости всех секторов = стомость_сектора/стоимость_всех_акций
 df_otrasl_grouped_and_aggregated_pcb['% от стоимости всех акций'] = df_otrasl_grouped_and_aggregated_pcb['Рыночная стоимость']*100/dict_portfel[scrap.SHARES]
-print("-------------------------------------------------")
-print("** Сектора в портфеле акций, отсортированные по стоимости **")
-print(df_otrasl_grouped_and_aggregated_pcb)
 
 # Создаём датафрейм с одними облигациями и сортируем по стоимости
 df_pcb_bonds = df_pcb[df_pcb['Тип'] == scrap.BONDS].sort_values(by=['Рыночная стоимость'],ascending=False)
 df_pcb_bonds['% от стоимости всех облигаций'] = df_pcb['Рыночная стоимость']*100/dict_portfel[scrap.BONDS]
-print("-------------------------------------------------")
-print("** TOP 10 Облигации в портфеле, отсортированные по стоимости **")
-print(df_pcb_bonds[['Наименование','Рыночная стоимость','Сектор','% от полной стоимости портфеля','% от стоимости всех облигаций']].head(10))
 
 # Суммы облигаций, сгруппированные по типу ОФЗ, Субъект или Корпорат
 df_tip_grouped_and_aggregated_pcb = df_pcb_bonds.groupby(["Сектор"]).agg({'Рыночная стоимость' : ['sum']})
@@ -66,16 +57,11 @@ df_tip_grouped_and_aggregated_pcb = df_tip_grouped_and_aggregated_pcb.stack().so
 # TODO: Убрать sum
 # Добавляем столбец - % от стоимости всех облигаций = стомость_типа/стоимость_всех_облигаций
 df_tip_grouped_and_aggregated_pcb['% от стоимости всех облигаций'] = df_tip_grouped_and_aggregated_pcb['Рыночная стоимость']*100/dict_portfel[scrap.BONDS]
-print("-------------------------------------------------")
-print("** Типы в портфеле облигаций, отсортированные по стоимости **")
-print(df_tip_grouped_and_aggregated_pcb)
 
 # additional_money = float(input("Введите сумму, которую собираемся доложить на счёт, рублей: "))
 additional_money = 0
 full_portfel_cost = full_portfel_cost + additional_money
 dict_portfel[scrap.CASH] = dict_portfel[scrap.CASH] + additional_money
-
-#print(dict_portfel)
 
 # Доли активов в настоящее время (с учётом докладываемой суммы)
 current_portions = {
@@ -92,37 +78,8 @@ diff_portions = {
     scrap.GOLD: round((ideal_portfel[scrap.GOLD] - current_portions[scrap.GOLD])*full_portfel_cost/100,2)
 }
 
-
-# Вывод в консоль
-print("-------------------------------------------------")
-print("** Параметры портфеля в настоящее время (с учётом докладываемой суммы) **")
-print(f"- Стоимость ценных бумаг:    {(full_portfel_cost - dict_portfel[scrap.CASH]):11} рублей")
-print(f"- Денежные средства:         {dict_portfel[scrap.CASH]:11} рублей")
-print(f"- Полная стоимость портфеля: {full_portfel_cost:11} рублей")
-print("-------------------------------------------------")
-print("** Доли активов в настоящее время (с учётом докладываемой суммы) **")
-print(f"- Облигации, %:          {current_portions[scrap.BONDS]:5}")
-print(f"- Акции, %:              {current_portions[scrap.SHARES]:5}")
-print(f"- Золото, %:             {current_portions[scrap.GOLD]:5}")
-print(f"- Денежные средства, %:  {current_portions[scrap.CASH]:5}")
-print("-------------------------------------------------")
-print("** Необходимые изменения для достижения идеальных пропорций **")
-if diff_portions[scrap.BONDS]>0:
-    print(f"- Облигации:    купить на {diff_portions[scrap.BONDS]:11} рублей")
-else:
-    print(f"- Облигации:    продать на {abs(diff_portions[scrap.BONDS]):11} рублей")
-if diff_portions[scrap.SHARES]>0:
-    print(f"- Акции:        купить на {diff_portions[scrap.SHARES]:11} рублей")
-else:
-    print(f"- Акции:        продать на {abs(diff_portions[scrap.SHARES]):11} рублей")
-if diff_portions[scrap.GOLD]>0:
-    print(f"- Золото:       купить на {diff_portions[scrap.GOLD]:11} рублей")
-else:
-    print(f"- Золото:       продать на {abs(diff_portions[scrap.GOLD]):11} рублей")
-
-
+#region Вывод в Jupyter Notebook
 """
-# Вывод в Jupyter Notebook
 from IPython.display import HTML, display
 
 html1 = ("<h2 style='padding: 8px'>Параметры портфеля в настоящее время (с учётом докладываемой суммы)</h2>"
@@ -152,3 +109,75 @@ import plotly.graph_objs as go
 
 #init_notebook_mode(connected=True)
 '''
+#endregion
+
+# Заполняем Markdown-файл с описанием портфеля
+with open ('portfel_result.md', 'w', encoding='utf-8') as portfel_result:
+    # Параметры портфеля
+    portfel_result.write('## Параметры портфеля\n')
+    portfel_result.write(f"|Параметр|Значение|\n")
+    portfel_result.write(f"|---|--:|\n")
+    portfel_result.write(f"|Стоимость ценных бумаг, руб|{round(full_portfel_cost - dict_portfel[scrap.CASH],2)}|\n")
+    portfel_result.write(f"|Денежные средства, руб|{dict_portfel[scrap.CASH]}|\n")
+    portfel_result.write(f"|Полная стоимость портфеля, руб|{full_portfel_cost}|\n")
+
+    # Доли активов
+    portfel_result.write('## Доли активов\n')
+    portfel_result.write(f"|Тип актива|Сумма|Доля от портфеля, %|Идеальная доля от портфеля, %|\n")
+    portfel_result.write(f"|---|--:|--:|--:|\n")
+    portfel_result.write(f"|Облигации|{round(dict_portfel[scrap.BONDS],2)}|{current_portions[scrap.BONDS]}|{ideal_portfel[scrap.BONDS]}|\n")
+    portfel_result.write(f"|Акции|{dict_portfel[scrap.SHARES]}|{current_portions[scrap.SHARES]}|{ideal_portfel[scrap.SHARES]}|\n")
+    portfel_result.write(f"|Золото|{dict_portfel[scrap.GOLD]}|{current_portions[scrap.GOLD]}|{ideal_portfel[scrap.GOLD]}|\n")
+    portfel_result.write(f"|Денежные средства|{dict_portfel[scrap.CASH]}|{current_portions[scrap.CASH]}|{ideal_portfel[scrap.CASH]}|\n")
+
+    # Необходимые изменения для достижения идеальных пропорций
+    portfel_result.write('## Необходимые изменения для достижения идеальных пропорций\n')
+    emoji_up = ':small_red_triangle:'
+    emoji_down = ':small_red_triangle_down:'
+    portfel_result.write(f"|Тип актива|{emoji_up}Купить/{emoji_down}Продать, руб|\n")
+    portfel_result.write(f"|---|--:|\n")
+    ## Облигации
+    emoji_BONDS = emoji_up
+    if diff_portions[scrap.BONDS]<0:
+        emoji_BONDS = emoji_down
+    portfel_result.write(f"|Облигации|{emoji_BONDS}{abs(diff_portions[scrap.BONDS])}|\n")
+    ## Акции
+    emoji_SHARES = emoji_up
+    if diff_portions[scrap.SHARES]<0:
+        emoji_SHARES = emoji_down
+    portfel_result.write(f"|Акции|{emoji_SHARES}{abs(diff_portions[scrap.SHARES])}|\n")
+    ## Золото
+    emoji_GOLD = emoji_up
+    if diff_portions[scrap.GOLD]<0:
+        emoji_GOLD = emoji_down
+    portfel_result.write(f"|Золото|{emoji_GOLD}{abs(diff_portions[scrap.GOLD])}|\n")
+
+    # Акции в портфеле, отсортированные по стоимости
+    portfel_result.write('# Акции\n')
+    portfel_result.write('## Акции в портфеле, отсортированные по стоимости\n')
+    portfel_result.write(f"|Код|Наименование|Рыночная стоимость|Сектор|% от полной стоимости портфеля|% от стоимости всех акций|\n")
+    portfel_result.write(f"|---|---|---|---|--:|--:|\n")
+    for index, row in df_pcb_shares.iterrows():
+        portfel_result.write(f"|{row['Код']}|{row['Наименование']}|{row['Рыночная стоимость']}|{row['Сектор']}|{round(row['% от полной стоимости портфеля'],2)}|{round(row['% от стоимости всех акций'],2)}|\n")
+
+    # Сектора в портфеле акций, отсортированные по стоимости
+    portfel_result.write('## Сектора в портфеле акций, отсортированные по стоимости\n')
+    portfel_result.write(f"|Сектор|Рыночная стоимость|% от стоимости всех акций|\n")
+    portfel_result.write(f"|---|--:|--:|\n")
+    for index, row in df_otrasl_grouped_and_aggregated_pcb.iterrows():
+        portfel_result.write(f"|{index[0]}|{row['Рыночная стоимость']}|{round(row['% от стоимости всех акций'],2)}|\n")
+
+    # Облигации в портфеле, отсортированные по стоимости
+    portfel_result.write('# Облигации\n')
+    portfel_result.write('## Облигации в портфеле, отсортированные по стоимости\n')
+    portfel_result.write(f"|Наименование|Тип|Рыночная стоимость|% от полной стоимости портфеля|% от стоимости всех облигаций|\n")
+    portfel_result.write(f"|---|---|--:|--:|--:|\n")
+    for index, row in df_pcb_bonds.iterrows():
+        portfel_result.write(f"|{row['Наименование']}|{row['Сектор']}|{row['Рыночная стоимость']}|{round(row['% от полной стоимости портфеля'],2)}|{round(row['% от стоимости всех облигаций'],2)}|\n")
+
+    # Типы в портфеле облигаций, отсортированные по стоимости
+    portfel_result.write('## Типы в портфеле облигаций, отсортированные по стоимости\n')
+    portfel_result.write(f"|Тип|Рыночная стоимость|% от стоимости всех облигаций|\n")
+    portfel_result.write(f"|---|--:|--:|\n")
+    for index, row in df_tip_grouped_and_aggregated_pcb.iterrows():
+        portfel_result.write(f"|{index[0]}|{round(row['Рыночная стоимость'],2)}|{round(row['% от стоимости всех облигаций'],2)}|\n")
