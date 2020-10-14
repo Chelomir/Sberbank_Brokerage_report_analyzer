@@ -65,10 +65,10 @@ dict_portfel[scrap.CASH] = dict_portfel[scrap.CASH] + additional_money
 
 # Доли активов в настоящее время (с учётом докладываемой суммы)
 current_portions = {
-    scrap.BONDS: round(dict_portfel[scrap.BONDS]*100/full_portfel_cost,2),
-    scrap.SHARES: round(dict_portfel[scrap.SHARES]*100/full_portfel_cost,2),
-    scrap.GOLD: round(dict_portfel[scrap.GOLD]*100/full_portfel_cost,2),
-    scrap.CASH: round(dict_portfel[scrap.CASH]*100/full_portfel_cost,2)
+    scrap.BONDS: round(dict_portfel.get(scrap.BONDS,0)*100/full_portfel_cost,2),
+    scrap.SHARES: round(dict_portfel.get(scrap.SHARES,0)*100/full_portfel_cost,2),
+    scrap.GOLD: round(dict_portfel.get(scrap.GOLD,0)*100/full_portfel_cost,2),
+    scrap.CASH: round(dict_portfel.get(scrap.CASH,0)*100/full_portfel_cost,2)
 }
 
 # Необходимые изменения в рублях для достижения идеальных пропорций
@@ -125,10 +125,10 @@ with open ('portfel_result.md', 'w', encoding='utf-8') as portfel_result:
     portfel_result.write('## Доли активов\n')
     portfel_result.write(f"|Тип актива|Сумма|Доля от портфеля, %|Идеальная доля от портфеля, %|\n")
     portfel_result.write(f"|---|--:|--:|--:|\n")
-    portfel_result.write(f"|Облигации|{round(dict_portfel[scrap.BONDS],2)}|{current_portions[scrap.BONDS]}|{ideal_portfel[scrap.BONDS]}|\n")
-    portfel_result.write(f"|Акции|{dict_portfel[scrap.SHARES]}|{current_portions[scrap.SHARES]}|{ideal_portfel[scrap.SHARES]}|\n")
-    portfel_result.write(f"|Золото|{dict_portfel[scrap.GOLD]}|{current_portions[scrap.GOLD]}|{ideal_portfel[scrap.GOLD]}|\n")
-    portfel_result.write(f"|Денежные средства|{dict_portfel[scrap.CASH]}|{current_portions[scrap.CASH]}|{ideal_portfel[scrap.CASH]}|\n")
+    portfel_result.write(f"|Облигации|{round(dict_portfel.get(scrap.BONDS,0),2)}|{current_portions[scrap.BONDS]}|{ideal_portfel[scrap.BONDS]}|\n")
+    portfel_result.write(f"|Акции|{dict_portfel.get(scrap.SHARES,0)}|{current_portions[scrap.SHARES]}|{ideal_portfel[scrap.SHARES]}|\n")
+    portfel_result.write(f"|Золото|{dict_portfel.get(scrap.GOLD,0)}|{current_portions[scrap.GOLD]}|{ideal_portfel[scrap.GOLD]}|\n")
+    portfel_result.write(f"|Денежные средства|{dict_portfel.get(scrap.CASH,0)}|{current_portions[scrap.CASH]}|{ideal_portfel[scrap.CASH]}|\n")
 
     # Необходимые изменения для достижения идеальных пропорций
     portfel_result.write('## Необходимые изменения для достижения идеальных пропорций\n')
