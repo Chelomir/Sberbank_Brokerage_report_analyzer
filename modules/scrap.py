@@ -19,7 +19,8 @@ ACTIVE_TYPES = {
     'Акция иностранного эмитента': SHARES,
     'Облигация': BONDS,
     'ГДР': SHARES,
-    'Акция привилегированная': SHARES
+    'Акция привилегированная': SHARES,
+    'АДР': SHARES,
 }
 
 def get_info(path):
