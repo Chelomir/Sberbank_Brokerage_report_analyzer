@@ -144,3 +144,10 @@ def get_info(path):
                         else:
                             cb['Сектор'] = "Корпорат"
     return pcb
+
+def get_description(path):
+    description = ""
+    with open(path, 'r',encoding="utf-8", errors = "ignore") as file:
+        bs = BeautifulSoup(file.read(), 'html.parser')
+        description = bs.h3.text.replace("\n"," ")
+    return description

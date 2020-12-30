@@ -16,6 +16,7 @@ ideal_portfel = {
 REPORT_PATH = r"C:\Users\User\Desktop\brokercode_030719_030719_D.html"
 
 pcb = scrap.get_info(REPORT_PATH)
+description = scrap.get_description(REPORT_PATH)
 
 # Получаем датафрейм для дальнейшей работы
 df_pcb = pd.DataFrame(pcb)
@@ -113,6 +114,8 @@ import plotly.graph_objs as go
 
 # Заполняем Markdown-файл с описанием портфеля
 with open ('portfel_result.md', 'w', encoding='utf-8') as portfel_result:
+    portfel_result.write(f"# {description}\n")
+
     # Параметры портфеля
     portfel_result.write('## Параметры портфеля\n')
     portfel_result.write(f"|Параметр|Значение|\n")
